@@ -1,14 +1,14 @@
 import unittest # módulo pararealização de testes no Python
 #from sistema_legado import adicionar_usuario, remover_usuario, buscar_usuario, listar_usuarios
 
-from test_helpers import (
+from test import (
     adicionar_usuario,
     remover_usuario,
     buscar_usuario,
     listar_usuarios 
 )
 
-# class TestSistema(unittest.TestCase):
+class TestSistema(unittest.TestCase):
 
     # ---------------------------
     # TESTES DA FUNÇÃO ADICIONAR
