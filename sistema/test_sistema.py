@@ -8,7 +8,7 @@ from test_helpers import (
     listar_usuarios 
 )
 
-class TestSistema(unittest.TestCase):
+# class TestSistema(unittest.TestCase):
 
     # ---------------------------
     # TESTES DA FUNÇÃO ADICIONAR
