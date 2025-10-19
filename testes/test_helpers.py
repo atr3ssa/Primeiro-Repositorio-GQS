@@ -1,6 +1,6 @@
 # test_helpers.py
 
-import sistema_legado
+import sistema.sistema_legado
 
 def adicionar_usuario(nome):
     if nome:
