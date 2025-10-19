@@ -24,4 +24,4 @@ jobs:
     - name: Rodar testes automáticos
       run: |
         echo "Iniciando execução dos testes..."
-        python -m unittest testes/test_sistema.py
+        PYTHONPATH=. python -m unittest testes/test_sistema.py
