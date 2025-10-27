@@ -1,90 +1,90 @@
-import unittest # módulo pararealização de testes no Python
-#from sistema_legado import adicionar_usuario, remover_usuario, buscar_usuario, listar_usuarios
+import sys
+import os
+import unittest
+
+# adiciona a pasta "sistema" ao path para o Python encontrar o módulo biblioteca
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'sistema')))
+
+import biblioteca
 
 
+class TestBiblioteca(unittest.TestCase):
 
-from sistema.sistema_legado import (
-    adicionar_usuario,
-    remover_usuario,
-    buscar_usuario,
-    listar_usuarios 
-)
+    def setUp(self):
+        """Executa antes de cada teste para limpar os dados."""
+        biblioteca.livros = []
+        biblioteca.usuarios = []
+        biblioteca.emprestimos = []
+        biblioteca.contador_livros = 1
+        biblioteca.contador_usuarios = 1
+        if os.path.exists("biblioteca.json"):
+            os.remove("biblioteca.json")
 
-class TestSistema(unittest.TestCase):
+    # -------- TESTES DE FUNCIONALIDADES --------
 
-    # ---------------------------
-    # TESTES DA FUNÇÃO ADICIONAR
-    # ---------------------------
-
-    def test_adicionar_usuario_valido(self):
-        """Deve adicionar um nome corretamente na lista."""
-        usuarios = []
-        adicionar_usuario(usuarios, "Maria")
-        self.assertIn("Maria", usuarios)
-
-    def test_adicionar_usuario_vazio(self):
-        """Não deve adicionar usuário com nome vazio."""
-        usuarios = []
-        adicionar_usuario(usuarios, "")
-        self.assertEqual(len(usuarios), 0)
-
-    def test_adicionar_usuario_duplicado(self):
-        """Não deve permitir duplicatas."""
-        usuarios = ["Ana"]
-        adicionar_usuario(usuarios, "Ana")
-        self.assertEqual(usuarios.count("Ana"), 1)
-
-    # ---------------------------
-    # TESTES DA FUNÇÃO REMOVER
-    # ---------------------------
-
-    def test_remover_usuario_existente(self):
-        """Deve remover o usuário corretamente."""
-        usuarios = ["João", "Maria"]
-        remover_usuario(usuarios, "Maria")
-        self.assertNotIn("Maria", usuarios)
-
-    def test_remover_usuario_inexistente(self):
-        """Não deve quebrar se tentar remover alguém que não existe."""
-        usuarios = ["Carlos"]
-        try:
-            remover_usuario(usuarios, "Zeca")
-            resultado = True
-        except Exception:
-            resultado = False
+    def test_adicionar_livro(self):
+        resultado = biblioteca.adicionarLivro("Livro Teste", "Autor", "1234567890123", 2024)
         self.assertTrue(resultado)
+        self.assertEqual(len(biblioteca.livros), 1)
+        self.assertEqual(biblioteca.livros[0]["titulo"], "Livro Teste")
 
-    # ---------------------------
-    # TESTES DA FUNÇÃO BUSCAR
-    # ---------------------------
+    def test_cadastrar_usuario(self):
+        resultado = biblioteca.cadastrarUsuario("Usuário", "user@example.com", "9999")
+        self.assertTrue(resultado)
+        self.assertEqual(len(biblioteca.usuarios), 1)
+        self.assertEqual(biblioteca.usuarios[0]["email"], "user@example.com")
 
-    def test_buscar_usuario_existente(self):
-        """Deve encontrar o usuário correto."""
-        usuarios = ["Ana", "Bruno"]
-        resultado = buscar_usuario(usuarios, "Ana")
-        self.assertEqual(resultado, "Ana")
+    def test_realizar_emprestimo(self):
+        biblioteca.adicionarLivro("Livro A", "Autor A", "1234567890123", 2024)
+        biblioteca.cadastrarUsuario("Usuário A", "user@example.com", "123")
+        resultado = biblioteca.realizarEmprestimo(1, 1)
+        self.assertTrue(resultado)
+        self.assertFalse(biblioteca.livros[0]["disponivel"])
+        self.assertEqual(len(biblioteca.emprestimos), 1)
 
-    def test_buscar_usuario_inexistente(self):
-        """Deve retornar None quando o usuário não for encontrado."""
-        usuarios = ["Ana"]
-        resultado = buscar_usuario(usuarios, "Pedro")
-        self.assertIsNone(resultado)
+    def test_devolver_livro(self):
+        biblioteca.adicionarLivro("Livro A", "Autor A", "1234567890123", 2024)
+        biblioteca.cadastrarUsuario("Usuário A", "user@example.com", "123")
+        biblioteca.realizarEmprestimo(1, 1)
+        resultado = biblioteca.devolverLivro(1)
+        self.assertTrue(resultado)
+        self.assertTrue(biblioteca.livros[0]["disponivel"])
+        self.assertTrue(biblioteca.emprestimos[0]["devolvido"])
 
-    # ---------------------------
-    # TESTES DA FUNÇÃO LISTAR
-    # ---------------------------
+    def test_salvar_e_carregar_dados(self):
+        biblioteca.adicionarLivro("Livro X", "Autor X", "1234567890123", 2024)
+        biblioteca.cadastrarUsuario("Usuário X", "user@example.com", "123")
+        biblioteca.salvarDados()
 
-    def test_listar_usuarios(self):
-        """Deve retornar todos os usuários corretamente."""
-        usuarios = ["Ana", "Bruno", "Carla"]
-        resultado = listar_usuarios(usuarios)
-        self.assertEqual(resultado, ["Ana", "Bruno", "Carla"])
+        # Simula novo programa (limpa variáveis)
+        biblioteca.livros = []
+        biblioteca.usuarios = []
+        biblioteca.emprestimos = []
 
-    def test_listar_usuarios_vazio(self):
-        """Deve retornar lista vazia se não houver usuários."""
-        usuarios = []
-        resultado = listar_usuarios(usuarios)
-        self.assertEqual(resultado, [])
+        biblioteca.carregarDados()
+        self.assertEqual(len(biblioteca.livros), 1)
+        self.assertEqual(len(biblioteca.usuarios), 1)
 
-if __name__ == '__main__':
+    # -------- TESTES DE ERROS E VALIDAÇÕES --------
+
+    def test_nao_deve_adicionar_livro_com_isbn_invalido(self):
+        resultado = biblioteca.adicionarLivro("Livro B", "Autor B", "123", 2024)
+        self.assertFalse(resultado)
+
+    def test_nao_deve_cadastrar_usuario_com_email_invalido(self):
+        resultado = biblioteca.cadastrarUsuario("Usuário", "emailinvalido", "999")
+        self.assertFalse(resultado)
+
+    def test_nao_deve_permitir_emprestimo_usuario_inexistente(self):
+        biblioteca.adicionarLivro("Livro A", "Autor A", "1234567890123", 2024)
+        resultado = biblioteca.realizarEmprestimo(99, 1)
+        self.assertFalse(resultado)
+
+    def test_nao_deve_permitir_emprestimo_livro_inexistente(self):
+        biblioteca.cadastrarUsuario("Usuário A", "user@example.com", "999")
+        resultado = biblioteca.realizarEmprestimo(1, 99)
+        self.assertFalse(resultado)
+
+
+if __name__ == "__main__":
     unittest.main()
