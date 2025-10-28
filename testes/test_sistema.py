@@ -11,7 +11,6 @@ import biblioteca
 class TestBiblioteca(unittest.TestCase):
 
     def setUp(self):
-        print("\n🏁 Iniciando teste da classe TestBiblioteca")
         """Executa antes de cada teste para limpar os dados."""
         biblioteca.livros = []
         biblioteca.usuarios = []
