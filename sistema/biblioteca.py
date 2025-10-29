@@ -8,8 +8,8 @@ emprestimos = []
 contador_livros = 1
 contador_usuarios = 1
 
-#def adicionarLivro(titulo, autor, isbn, ano):
-    #global contador_livros
+def adicionarLivro(titulo, autor, isbn, ano):
+    global contador_livros
     if titulo == "" or autor == "" or isbn == "":
         print("Erro: campos obrigatórios")
         return False
