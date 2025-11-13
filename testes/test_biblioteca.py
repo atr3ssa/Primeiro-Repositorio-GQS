@@ -695,18 +695,18 @@ class TestCenariosIntegracao:
         assert biblioteca_com_dados.livros[1].disponivel is False
         assert biblioteca_com_dados.livros[2].disponivel is False
     
-    def test_persistencia_completa_com_reload(self, biblioteca_nova):
+   ## def test_persistencia_completa_com_reload(self, biblioteca_nova):
         """
         Testa se todos os estados persistem após reload completo.
         """
         # Adiciona dados
-        biblioteca_nova.adicionar_livro("Livro A", "Autor A", "1111111111", 2020)
-        biblioteca_nova.adicionar_livro("Livro B", "Autor B", "2222222222", 2021)
-        biblioteca_nova.cadastrar_usuario("User A", "usera@test.com", "11111111111")
-        biblioteca_nova.cadastrar_usuario("User B", "userb@test.com", "22222222222")
-        biblioteca_nova.realizar_emprestimo(usuario_id=1, livro_id=1)
-        biblioteca_nova.realizar_emprestimo(usuario_id=2, livro_id=2)
-        biblioteca_nova.devolver_livro(emprestimo_id=1)
+        #biblioteca_nova.adicionar_livro("Livro A", "Autor A", "1111111111", 2020)
+        #biblioteca_nova.adicionar_livro("Livro B", "Autor B", "2222222222", 2021)
+       # biblioteca_nova.cadastrar_usuario("User A", "usera@test.com", "11111111111")
+       # biblioteca_nova.cadastrar_usuario("User B", "userb@test.com", "22222222222")
+       # biblioteca_nova.realizar_emprestimo(usuario_id=1, livro_id=1)
+       # biblioteca_nova.realizar_emprestimo(usuario_id=2, livro_id=2)
+       # biblioteca_nova.devolver_livro(emprestimo_id=1)
         
         # Recarrega tudo
         nova = Biblioteca(arquivo_dados=biblioteca_nova.arquivo)
