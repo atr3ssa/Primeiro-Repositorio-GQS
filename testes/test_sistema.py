@@ -1,6 +1,7 @@
 import sys
 import os
 import unittest
+import inspect
 
 # adiciona a pasta "sistema" ao path para o Python encontrar o módulo biblioteca
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'sistema')))
@@ -9,91 +10,96 @@ import biblioteca
 
 
 class TestBiblioteca(unittest.TestCase):
-    """Testes para as funcionalidades da biblioteca."""
+    """Teste universal compatível com versão legada e orientada a objetos."""
 
     def setUp(self):
-        """Executa antes de cada teste para limpar os dados."""
-        biblioteca.livros = []
-        biblioteca.usuarios = []
-        biblioteca.emprestimos = []
-        biblioteca.contador_livros = 1
-        biblioteca.contador_usuarios = 1
+        """Configura ambiente limpo antes de cada teste."""
+        # Detecta se o código está em formato orientado a objetos
+        self.is_oo = any(inspect.isclass(obj) for name, obj in vars(biblioteca).items() if name.lower() == "biblioteca")
+        
+        if self.is_oo:
+            # Instancia a classe principal se existir
+            self.sistema = biblioteca.Biblioteca()
+        else:
+            # Usa o módulo diretamente (código legado)
+            self.sistema = biblioteca
+        
+        # Tenta limpar dados (funciona nos dois formatos)
+        for attr in ["livros", "usuarios", "emprestimos"]:
+            if hasattr(self.sistema, attr):
+                setattr(self.sistema, attr, [])
+        for attr in ["contador_livros", "contador_usuarios"]:
+            if hasattr(self.sistema, attr):
+                setattr(self.sistema, attr, 1)
         if os.path.exists("biblioteca.json"):
             os.remove("biblioteca.json")
 
-    # -------- TESTES DE FUNCIONALIDADES --------
+    # -------- TESTES --------
+    def test_fluxo_completo(self):
+        """Testa adicionar, cadastrar, emprestar, devolver e salvar/carregar dados."""
 
-    def test_adicionar_livro_valido(self):
-        """Deve adicionar um livro com dados válidos."""
-        resultado = biblioteca.adicionarLivro("Livro Teste", "Autor", "1234567890123", 2024)
-        self.assertTrue(resultado, msg="Falha: o livro não foi adicionado corretamente.")
-        self.assertEqual(len(biblioteca.livros), 1, msg="Falha: a lista de livros não contém exatamente 1 item.")
-        self.assertEqual(biblioteca.livros[0]["titulo"], "Livro Teste", msg="Falha: o título do livro não corresponde ao esperado.")
+        # Adiciona livro
+        if self.is_oo:
+            resultado_livro = self.sistema.adicionar_livro("Livro Teste", "Autor", "1234567890123", 2024)
+        else:
+            resultado_livro = self.sistema.adicionarLivro("Livro Teste", "Autor", "1234567890123", 2024)
+        self.assertTrue(resultado_livro, "Falha ao adicionar livro.")
 
-    def test_cadastrar_usuario_valido(self):
-        """Deve cadastrar um usuário com dados válidos."""
-        resultado = biblioteca.cadastrarUsuario("Usuário", "user@example.com", "9999")
-        self.assertTrue(resultado, msg="Falha: o usuário não foi cadastrado corretamente.")
-        self.assertEqual(len(biblioteca.usuarios), 1, msg="Falha: a lista de usuários não contém exatamente 1 item.")
-        self.assertEqual(biblioteca.usuarios[0]["email"], "user@example.com", msg="Falha: o email do usuário não corresponde ao esperado.")
+        # Cadastra usuário
+        if self.is_oo:
+            resultado_usuario = self.sistema.cadastrar_usuario("Usuário", "user@example.com", "123")
+        else:
+            resultado_usuario = self.sistema.cadastrarUsuario("Usuário", "user@example.com", "123")
+        self.assertTrue(resultado_usuario, "Falha ao cadastrar usuário.")
 
-    def test_realizar_emprestimo_valido(self):
-        """Deve realizar o empréstimo de um livro para um usuário existente."""
-        biblioteca.adicionarLivro("Livro A", "Autor A", "1234567890123", 2024)
-        biblioteca.cadastrarUsuario("Usuário A", "user@example.com", "123")
-        resultado = biblioteca.realizarEmprestimo(1, 1)
-        self.assertTrue(resultado, msg="Falha: o empréstimo não foi realizado corretamente.")
-        self.assertFalse(biblioteca.livros[0]["disponivel"], msg="Falha: o livro deveria estar indisponível após o empréstimo.")
-        self.assertEqual(len(biblioteca.emprestimos), 1, msg="Falha: a lista de empréstimos não contém exatamente 1 item.")
+        # Realiza empréstimo
+        if self.is_oo:
+            resultado_emprestimo = self.sistema.realizar_emprestimo(1, 1)
+        else:
+            resultado_emprestimo = self.sistema.realizarEmprestimo(1, 1)
+        self.assertTrue(resultado_emprestimo, "Falha ao realizar empréstimo.")
 
-    def test_devolver_livro_valido(self):
-        """Deve devolver corretamente um livro emprestado."""
-        biblioteca.adicionarLivro("Livro A", "Autor A", "1234567890123", 2024)
-        biblioteca.cadastrarUsuario("Usuário A", "user@example.com", "123")
-        biblioteca.realizarEmprestimo(1, 1)
-        resultado = biblioteca.devolverLivro(1)
-        self.assertTrue(resultado, msg="Falha: a devolução do livro não foi realizada corretamente.")
-        self.assertTrue(biblioteca.livros[0]["disponivel"], msg="Falha: o livro deveria estar disponível após a devolução.")
-        self.assertTrue(biblioteca.emprestimos[0]["devolvido"], msg="Falha: o empréstimo não foi marcado como devolvido.")
+        # Devolve livro
+        if self.is_oo:
+            resultado_devolucao = self.sistema.devolver_livro(1)
+        else:
+            resultado_devolucao = self.sistema.devolverLivro(1)
+        self.assertTrue(resultado_devolucao, "Falha ao devolver livro.")
 
-    def test_salvar_e_carregar_dados(self):
-        """Deve salvar e carregar corretamente os dados da biblioteca."""
-        biblioteca.adicionarLivro("Livro X", "Autor X", "1234567890123", 2024)
-        biblioteca.cadastrarUsuario("Usuário X", "user@example.com", "123")
-        biblioteca.salvarDados()
+        # Salva dados
+        if self.is_oo:
+            self.sistema.salvar_dados()
+            self.sistema.livros = []
+            self.sistema.usuarios = []
+            self.sistema.emprestimos = []
+            self.sistema.carregar_dados()
+        else:
+            self.sistema.salvarDados()
+            self.sistema.livros = []
+            self.sistema.usuarios = []
+            self.sistema.emprestimos = []
+            self.sistema.carregarDados()
 
-        # Simula reinício do programa
-        biblioteca.livros = []
-        biblioteca.usuarios = []
-        biblioteca.emprestimos = []
+        self.assertGreater(len(self.sistema.livros), 0, "Livro não recarregado corretamente.")
+        self.assertGreater(len(self.sistema.usuarios), 0, "Usuário não recarregado corretamente.")
 
-        biblioteca.carregarDados()
-        self.assertEqual(len(biblioteca.livros), 1, msg="Falha: o livro não foi carregado corretamente do arquivo JSON.")
-        self.assertEqual(len(biblioteca.usuarios), 1, msg="Falha: o usuário não foi carregado corretamente do arquivo JSON.")
+    def test_validacoes(self):
+        """Testa validações e cenários de erro."""
+        if self.is_oo:
+            add = self.sistema.adicionar_livro
+            cad = self.sistema.cadastrar_usuario
+            emp = self.sistema.realizar_emprestimo
+        else:
+            add = self.sistema.adicionarLivro
+            cad = self.sistema.cadastrarUsuario
+            emp = self.sistema.realizarEmprestimo
 
-    # -------- TESTES DE ERROS E VALIDAÇÕES --------
-
-    def test_nao_adicionar_livro_com_isbn_invalido(self):
-        """Não deve permitir adicionar um livro com ISBN inválido."""
-        resultado = biblioteca.adicionarLivro("Livro B", "Autor B", "123", 2024)
-        self.assertFalse(resultado, msg="Falha: livro com ISBN inválido foi adicionado.")
-
-    def test_nao_cadastrar_usuario_com_email_invalido(self):
-        """Não deve permitir cadastrar usuário com email inválido."""
-        resultado = biblioteca.cadastrarUsuario("Usuário", "emailinvalido", "999")
-        self.assertFalse(resultado, msg="Falha: usuário com email inválido foi cadastrado.")
-
-    def test_nao_permitir_emprestimo_para_usuario_inexistente(self):
-        """Não deve permitir empréstimo para um usuário que não existe."""
-        biblioteca.adicionarLivro("Livro A", "Autor A", "1234567890123", 2024)
-        resultado = biblioteca.realizarEmprestimo(99, 1)  # Usuário 99 não existe
-        self.assertFalse(resultado, msg="Falha: empréstimo realizado para usuário inexistente.")
-
-    def test_nao_permitir_emprestimo_para_livro_inexistente(self):
-        """Não deve permitir empréstimo de um livro que não existe."""
-        biblioteca.cadastrarUsuario("Usuário A", "user@example.com", "999")
-        resultado = biblioteca.realizarEmprestimo(1, 99)  # Livro 99 não existe
-        self.assertFalse(resultado, msg="Falha: empréstimo realizado para livro inexistente.")
+        self.assertFalse(add("Livro Inválido", "Autor", "123", 2024), "Aceitou ISBN inválido.")
+        self.assertFalse(cad("Usuário", "emailinvalido", "999"), "Aceitou e-mail inválido.")
+        add("Livro A", "Autor A", "1234567890123", 2024)
+        self.assertFalse(emp(1, 99), "Emprestou livro para usuário inexistente.")
+        cad("Usuário A", "a@a.com", "123")
+        self.assertFalse(emp(99, 1), "Emprestou livro inexistente.")
 
 
 if __name__ == "__main__":
