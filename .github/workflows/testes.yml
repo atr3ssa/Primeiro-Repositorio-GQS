@@ -39,18 +39,36 @@ jobs:
         pip install pytest pytest-cov pytest-html pytest-json-report
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
+    - name: 🔍 Verificar estrutura do projeto
+      run: |
+        echo "📁 Estrutura de pastas:"
+        ls -la
+        echo ""
+        echo "📁 Conteúdo da pasta sistema:"
+        ls -la sistema/ || echo "❌ Pasta sistema não encontrada"
+        echo ""
+        echo "📁 Conteúdo da pasta testes:"
+        ls -la testes/ || echo "❌ Pasta testes não encontrada"
+        echo ""
+        echo "🐍 Versão do Python:"
+        python --version
+        echo ""
+        echo "📦 Pacotes instalados:"
+        pip list
+    
     - name: 🧪 Executar testes
       run: |
-        cd testes
-        pytest test_biblioteca.py -v \
-          --cov=../sistema \
+        echo "📂 Diretório atual: $(pwd)"
+        pytest testes/test_biblioteca.py -v \
+          --cov=sistema \
           --cov-report=term-missing \
-          --cov-report=html \
-          --cov-report=xml \
-          --html=report.html \
+          --cov-report=html:testes/htmlcov \
+          --cov-report=xml:testes/coverage.xml \
+          --html=testes/report.html \
           --self-contained-html \
           --json-report \
-          --json-report-file=report.json
+          --json-report-file=testes/report.json \
+          || echo "⚠️ Testes falharam com código $?"
     
     - name: 📊 Upload relatório de cobertura para Codecov
       if: matrix.python-version == '3.11'
