@@ -1,18 +1,18 @@
 class Livro:
-    def __init__(self, id_livro: int, titulo: str, autor: str, isbn: str, ano: int):
-        self.id = id_livro
+    contador_id = 0
+    
+    def __init__(self, titulo, autor, isbn, ano, id=None):
+        if id is not None:
+            self.id = id
+            # Atualiza o contador se o id carregado for maior
+            if id >= Livro.contador_id:
+                Livro.contador_id = id
+        else:
+            Livro.contador_id += 1
+            self.id = Livro.contador_id
+            
         self.titulo = titulo
         self.autor = autor
         self.isbn = isbn
         self.ano = ano
         self.disponivel = True
-
-    def marcar_como_emprestado(self):
-        self.disponivel = False
-
-    def marcar_como_disponivel(self):
-        self.disponivel = True
-
-    def __str__(self):
-        status = "Disponível" if self.disponivel else "Emprestado"
-        return f"[{self.id}] {self.titulo} - {self.autor} ({self.ano}) | {status}"
