@@ -541,7 +541,7 @@ class TestPersistenciaDados:
         """
         biblioteca_nova.adicionar_livro("Livro Teste", "Autor Teste", "1234567890", 2023)
         biblioteca_nova.cadastrar_usuario("Usuario Teste", "user@test.com", "11999999999")
-        biblioteca_nova.realizar_emprestimo(usuario_id=, livro_id=)
+        biblioteca_nova.realizar_emprestimo(usuario_id="", livro_id="")
         
         nova_instancia = Biblioteca(arquivo_dados=biblioteca_nova.arquivo)
         nova_instancia.carregar_dados()
