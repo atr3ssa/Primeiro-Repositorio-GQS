@@ -16,7 +16,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(CURRENT_DIR)
 sys.path.insert(0, PARENT_DIR)
 
-from sistema.biblioteca import Biblioteca
+import sistema.biblioteca_poo
 
 
 # ==================== FIXTURES ====================
