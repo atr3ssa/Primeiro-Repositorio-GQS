@@ -314,7 +314,7 @@ class Biblioteca:
             print("Nenhum empréstimo registrado.")
             return
         
-        print("\n=== EMPRÉSTIMOS ===")
+        #print("\n=== EMPRÉSTIMOS ===")
         for emprestimo in self.emprestimos:
             usuario = self.buscar_usuario_por_id(emprestimo.usuario_id)
             livro = self.buscar_livro_por_id(emprestimo.livro_id)

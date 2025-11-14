@@ -1,0 +1,26 @@
+{
+  "livros": [
+    {
+      "id": 1,
+      "titulo": "1984",
+      "autor": "George Orwell",
+      "isbn": "9780451524935",
+      "ano": 1949,
+      "disponivel": true
+    }
+  ],
+  "usuarios": [
+    {
+      "id": 1,
+      "nome": "João Silva",
+      "email": "joao@email.com",
+      "telefone": "11987654321"
+    }
+  ],
+  "emprestimos": [],
+  "contadores": {
+    "livro": 1,
+    "usuario": 1,
+    "emprestimo": 0
+  }
+}
