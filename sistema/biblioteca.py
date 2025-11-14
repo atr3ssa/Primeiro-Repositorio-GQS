@@ -17,7 +17,7 @@ class Livro:
     def __init__(self, titulo: str, autor: str, isbn: str, ano: int, id: Optional[int] = None):
         if id is not None:
             self.id = int(id)
-            if self.id >= Livro.contador_id:
+            if self.id > Livro.contador_id:
                 Livro.contador_id = self.id
         else:
             Livro.contador_id += 1
@@ -51,6 +51,11 @@ class Livro:
     def __str__(self) -> str:
         status = "Disponível" if self.disponivel else "Emprestado"
         return f"[{self.id}] {self.titulo} - {self.autor} ({self.ano}) | {status}"
+    
+    @classmethod
+    def resetar_contador(cls) -> None:
+        """Reseta o contador de IDs (útil para testes)."""
+        cls.contador_id = 0
 
 
 class Usuario:
@@ -61,7 +66,7 @@ class Usuario:
     def __init__(self, nome: str, email: str, telefone: str, id: Optional[int] = None):
         if id is not None:
             self.id = int(id)
-            if self.id >= Usuario.contador_id:
+            if self.id > Usuario.contador_id:
                 Usuario.contador_id = self.id
         else:
             Usuario.contador_id += 1
@@ -82,6 +87,11 @@ class Usuario:
     
     def __str__(self) -> str:
         return f"[{self.id}] {self.nome} - {self.email} - {self.telefone}"
+    
+    @classmethod
+    def resetar_contador(cls) -> None:
+        """Reseta o contador de IDs (útil para testes)."""
+        cls.contador_id = 0
 
 
 class Emprestimo:
@@ -92,7 +102,7 @@ class Emprestimo:
     def __init__(self, usuario_id: int, livro_id: int, id: Optional[int] = None):
         if id is not None:
             self.id = int(id)
-            if self.id >= Emprestimo.contador_id:
+            if self.id > Emprestimo.contador_id:
                 Emprestimo.contador_id = self.id
         else:
             Emprestimo.contador_id += 1
@@ -119,6 +129,11 @@ class Emprestimo:
             'data_emprestimo': self.data_emprestimo,
             'data_devolucao': self.data_devolucao
         }
+    
+    @classmethod
+    def resetar_contador(cls) -> None:
+        """Reseta o contador de IDs (útil para testes)."""
+        cls.contador_id = 0
 
 
 class Biblioteca:
@@ -129,6 +144,11 @@ class Biblioteca:
         self.livros: List[Livro] = []
         self.usuarios: List[Usuario] = []
         self.emprestimos: List[Emprestimo] = []
+        
+        # Resetar contadores ao criar nova instância
+        Livro.resetar_contador()
+        Usuario.resetar_contador()
+        Emprestimo.resetar_contador()
     
     # ==================== VALIDAÇÕES ====================
     
@@ -311,7 +331,12 @@ class Biblioteca:
         dados = {
             'livros': [livro.to_dict() for livro in self.livros],
             'usuarios': [usuario.to_dict() for usuario in self.usuarios],
-            'emprestimos': [emp.to_dict() for emp in self.emprestimos]
+            'emprestimos': [emp.to_dict() for emp in self.emprestimos],
+            'contadores': {
+                'livro': Livro.contador_id,
+                'usuario': Usuario.contador_id,
+                'emprestimo': Emprestimo.contador_id
+            }
         }
         
         with open(self.arquivo, 'w', encoding='utf-8') as f:
@@ -325,6 +350,13 @@ class Biblioteca:
         try:
             with open(self.arquivo, 'r', encoding='utf-8') as f:
                 dados = json.load(f)
+            
+            # Restaurar contadores primeiro
+            contadores = dados.get('contadores', {})
+            if contadores:
+                Livro.contador_id = contadores.get('livro', 0)
+                Usuario.contador_id = contadores.get('usuario', 0)
+                Emprestimo.contador_id = contadores.get('emprestimo', 0)
             
             # Carregar livros
             for livro_data in dados.get('livros', []):
