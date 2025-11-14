@@ -541,14 +541,14 @@ class TestPersistenciaDados:
         """
         biblioteca_nova.adicionar_livro("Livro Teste", "Autor Teste", "1234567890", 2023)
         biblioteca_nova.cadastrar_usuario("Usuario Teste", "user@test.com", "11999999999")
-        biblioteca_nova.realizar_emprestimo(usuario_id="", livro_id="")
+        biblioteca_nova.realizar_emprestimo(usuario_id=1, livro_id=1)
         
         nova_instancia = Biblioteca(arquivo_dados=biblioteca_nova.arquivo)
         nova_instancia.carregar_dados()
         
-        assert len(nova_instancia.livros) == ""
-        assert len(nova_instancia.usuarios) == ""
-        assert len(nova_instancia.emprestimos) == ""
+        assert len(nova_instancia.livros) == 1
+        assert len(nova_instancia.usuarios) == 1
+        assert len(nova_instancia.emprestimos) == 1
         assert nova_instancia.livros[0].titulo == "Livro Teste"
         assert nova_instancia.usuarios[0].nome == "Usuario Teste"
     
@@ -590,7 +590,6 @@ class TestPersistenciaDados:
         
         assert nova_instancia.livros[1].id == 2
         assert nova_instancia.usuarios[1].id == 2
-
 
 # ==================== TESTES: LISTAGENS ====================
 
