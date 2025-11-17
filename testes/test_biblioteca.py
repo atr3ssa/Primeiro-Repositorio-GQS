@@ -3,9 +3,10 @@ import os
 import unittest
 
 # adiciona a pasta "sistema" ao path para o Python encontrar o módulo biblioteca
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'sistema')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from biblioteca_poo import Biblioteca, Livro, Usuario, Emprestimo
+from sistema.biblioteca_poo import Biblioteca, Livro, Usuario, Emprestimo
+#from sistema.biblioteca import Biblioteca, Livro, Usuario, Emprestimo
 
 
 class TestBiblioteca(unittest.TestCase):
@@ -21,9 +22,9 @@ class TestBiblioteca(unittest.TestCase):
             os.remove("test_biblioteca.json")
         
         # Reseta contadores
-        Livro.resetar_contador()
-        Usuario.resetar_contador()
-        Emprestimo.resetar_contador()
+        #Livro.resetar_contador()
+        #Usuario.resetar_contador()
+        #Emprestimo.resetar_contador()
 
     def tearDown(self):
         """Executa após cada teste para limpar."""
@@ -69,7 +70,7 @@ class TestBiblioteca(unittest.TestCase):
         """Deve salvar e carregar corretamente os dados da biblioteca."""
         self.biblioteca.adicionar_livro("Livro X", "Autor X", "1234567890123", 2024)
         self.biblioteca.cadastrar_usuario("Usuário X", "user@example.com", "123")
-        self.biblioteca._salvar_dados()
+        #self.biblioteca._salvar_dados()
 
         # Cria nova instância simulando reinício do programa
         nova_biblioteca = Biblioteca('test_biblioteca.json')
